@@ -3,6 +3,9 @@ import logo from './logo.svg';
 import './App.css';
 import Game from './Game'
 
+// const base_url = 'http://157.230.216.187:5000/'
+const base_url = 'http://127.0.0.1:5000/'
+
 class App extends Component {
 
   constructor(props) {
@@ -11,12 +14,13 @@ class App extends Component {
       list: [
         "Go to the store", "Wash the dishes", "Learn some code"
       ],
-      selected: null
+      selected_data: null
     }
 
     this.addItem = this.addItem.bind(this)
     this.expandDetails = this.expandDetails.bind(this)
     // this.handleChange = this.handleChange.bind(this)
+
   }
 
   expandDetails(e) {
@@ -24,7 +28,15 @@ class App extends Component {
 
     console.log('expandDetails was clicked')
     console.log(e.target.id)
-    this.setState({selected: e.target.id})
+
+    const url = `${base_url}/details?drug_name=${encodeURIComponent(e.target.id)}`
+
+    fetch(url).then(res => res.json()).then((result) => {
+      console.log(result)
+
+      this.setState({selected_data: result})
+    })
+
   }
 
   addItem(e) {
@@ -52,7 +64,7 @@ class App extends Component {
 
   handleChange(e) {
     // console.log(e.target.value)
-    const a = `http://157.230.216.187:5000/?search=${encodeURIComponent(e.target.value)}`
+    const a = `${base_url}?search=${encodeURIComponent(e.target.value)}`
     console.log(a)
     fetch(a).then(res => res.json()).then((result) => {
       console.log(result)
@@ -72,13 +84,20 @@ class App extends Component {
 
   render() {
 
-    const hasDetails = this.state.selected != null
+    const hasDetails = this.state.selected_data != null
 
     let details;
     if (hasDetails) {
-      details = (<div>has details</div>)
+      details = (<ul>
+        {
+          this.state.selected_data.map(item => (<li>{
+              `CompanyName ${item.CompanyName}and status date ${item.StatusDate}
+          with status ${item.DevelopmentStatus}`
+            }</li>))
+        }
+      </ul>)
     } else {
-      details = (<div>does not have details</div>)
+      details = (<div>does not have details</div >)
     }
 
     return (<div className="content">
