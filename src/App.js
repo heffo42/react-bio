@@ -3,8 +3,21 @@ import logo from './logo.svg';
 import './App.css';
 import Game from './Game'
 
-const base_url = 'http://157.230.216.187:5000/'
-// const base_url = 'http://127.0.0.1:5000/'
+import CanvasJSReact from './assets/canvasjs.react';
+//var CanvasJSReact = require('./canvasjs.react');
+var CanvasJS = CanvasJSReact.CanvasJS;
+var CanvasJSChart = CanvasJSReact.CanvasJSChart;
+
+// const base_url = 'http://157.230.216.187:5000/'
+const base_url = 'http://127.0.0.1:5000/'
+
+class SearchItem extends Component {
+  render() {
+    return (<li key={this.props.itemName}>{this.props.itemName}
+      <button id={this.props.itemName} onClick={this.props.onClick}>See more</button>
+    </li>)
+  }
+}
 
 class App extends Component {
 
@@ -41,7 +54,17 @@ class App extends Component {
 
         this.setState({selected_data: result})
       })
-    } else {}
+    } else {
+
+      console.log('fetching company profile')
+      const url = `${base_url}company_profile?name=${encodeURIComponent(e.target.id)}`
+
+      fetch(url).then(res => res.json()).then((result) => {
+        console.log(result)
+        this.setState({selected_data: result})
+      })
+
+    }
 
   }
 
@@ -100,19 +123,44 @@ class App extends Component {
 
     let details;
     if (hasDetails) {
-      details = (<ul>
-        {
-          this.state.selected_data.map(item => (<li>{
-              `CompanyName ${item.CompanyName}and status date ${item.StatusDate}
+
+      if (this.state.selectedOption == 'drug') {
+
+        details = (<ul>
+          {
+            this.state.selected_data.map(item => (<li>{
+                `CompanyName ${item.CompanyName}and status date ${item.StatusDate}
           with status ${item.DevelopmentStatus}`
-            }</li>))
+              }</li>))
+          }
+        </ul>)
+
+      } else {
+
+        const options = {
+          title: {
+            text: "Theraputic Areas"
+          },
+          data: [
+            {
+              type: "column",
+              dataPoints: this.state.selected_data
+            }
+          ]
         }
-      </ul>)
+
+        console.log(options.data.dataPoints)
+
+        details = (<div style={{
+            width: "50%"
+          }}><CanvasJSChart options={options}/></div>)
+      }
     } else {
       details = (<div>does not have details</div >)
     }
 
     return (<div className="content">
+
       <div className="container">
 
         <div className="flex-container">
@@ -134,13 +182,9 @@ class App extends Component {
 
         </div>
 
-        <div className="section">
+        <div className="searchItems">
           <ul>
-            {
-              this.state.list.map(item => (<li key={item}>{item}
-                <button id={item} onClick={this.expandDetails}>See more</button>
-              </li>))
-            }
+            {this.state.list.map(item => (<SearchItem itemName={item} key={item} onClick={this.expandDetails}/>))}
           </ul>
         </div>
 
