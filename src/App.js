@@ -3,8 +3,8 @@ import logo from './logo.svg';
 import './App.css';
 import Game from './Game'
 
-// const base_url = 'http://157.230.216.187:5000/'
-const base_url = 'http://127.0.0.1:5000/'
+const base_url = 'http://157.230.216.187:5000/'
+// const base_url = 'http://127.0.0.1:5000/'
 
 class App extends Component {
 
@@ -14,7 +14,9 @@ class App extends Component {
       list: [
         "Go to the store", "Wash the dishes", "Learn some code"
       ],
-      selected_data: null
+      selected_data: null,
+      selectedOption: 'drug',
+      activeCompanyData: null
     }
 
     this.addItem = this.addItem.bind(this)
@@ -31,13 +33,15 @@ class App extends Component {
     console.log('expandDetails was clicked')
     console.log(e.target.id)
 
-    const url = `${base_url}/details?drug_name=${encodeURIComponent(e.target.id)}`
+    if (this.state.selectedOption == 'drug') {
+      const url = `${base_url}/details?drug_name=${encodeURIComponent(e.target.id)}`
 
-    fetch(url).then(res => res.json()).then((result) => {
-      console.log(result)
+      fetch(url).then(res => res.json()).then((result) => {
+        console.log(result)
 
-      this.setState({selected_data: result})
-    })
+        this.setState({selected_data: result})
+      })
+    } else {}
 
   }
 
@@ -65,27 +69,29 @@ class App extends Component {
   }
 
   handleChange(e) {
-    // console.log(e.target.value)
-    const a = `${base_url}?search=${encodeURIComponent(e.target.value)}`
+
+    let a;
+    if (this.state.selectedOption == 'drug') {
+      a = `${base_url}?search=${encodeURIComponent(e.target.value)}`
+
+    } else {
+      a = `${base_url}company?search=${encodeURIComponent(e.target.value)}`
+
+    }
+
     console.log(a)
     fetch(a).then(res => res.json()).then((result) => {
       console.log(result)
       this.setState({list: result})
-    },
-    // Note: it's important to handle errors here
-    // instead of a catch() block so that we don't swallow
-    // exceptions from actual bugs in components.
-    (error) => {
+    }, (error) => {
       this.setState({isLoaded: true, error});
     })
-  }
 
-  // function drugDetails(props){
-  //
-  // }
+  }
 
   onChangeValue(event) {
     console.log(event.target.value)
+    this.setState({selectedOption: event.target.value})
   }
 
   render() {
@@ -113,12 +119,14 @@ class App extends Component {
 
           <div className="flex-child">
             <form className="form" id="addItemForm">
-              <input type="text" className="input" id="addInput" onChange={this.handleChange.bind(this)} placeholder="Something that needs ot be done..."/>
+              <input style={{
+                  width: "100%"
+                }} type="text" className="input" id="addInput" onChange={this.handleChange.bind(this)} placeholder={`Search for a ${this.state.selectedOption}`}/>
             </form>
           </div>
 
           <div className="flex-child" onChange={this.onChangeValue}>
-            <input type="radio" value="drug" name="search_type"/>
+            <input type="radio" value="drug" name="search_type" defaultChecked="true"/>
             Drug
             <input type="radio" value="company" name="search_type"/>
             Company
