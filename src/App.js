@@ -21,6 +21,8 @@ class App extends Component {
     this.expandDetails = this.expandDetails.bind(this)
     // this.handleChange = this.handleChange.bind(this)
 
+    this.onChangeValue = this.onChangeValue.bind(this)
+
   }
 
   expandDetails(e) {
@@ -82,6 +84,10 @@ class App extends Component {
   //
   // }
 
+  onChangeValue(event) {
+    console.log(event.target.value)
+  }
+
   render() {
 
     const hasDetails = this.state.selected_data != null
@@ -102,15 +108,25 @@ class App extends Component {
 
     return (<div className="content">
       <div className="container">
-        <section className="section">
-          <form className="form" id="addItemForm">
-            <input type="text" className="input" id="addInput" onChange={this.handleChange.bind(this)} placeholder="Something that needs ot be done..."/>
-            <button className="button is-info" onClick={this.addItem}>
-              Add Item
-            </button>
-          </form>
-        </section>
-        <section className="section">
+
+        <div className="flex-container">
+
+          <div className="flex-child">
+            <form className="form" id="addItemForm">
+              <input type="text" className="input" id="addInput" onChange={this.handleChange.bind(this)} placeholder="Something that needs ot be done..."/>
+            </form>
+          </div>
+
+          <div className="flex-child" onChange={this.onChangeValue}>
+            <input type="radio" value="drug" name="search_type"/>
+            Drug
+            <input type="radio" value="company" name="search_type"/>
+            Company
+          </div>
+
+        </div>
+
+        <div className="section">
           <ul>
             {
               this.state.list.map(item => (<li key={item}>{item}
@@ -118,7 +134,8 @@ class App extends Component {
               </li>))
             }
           </ul>
-        </section>
+        </div>
+
         <hr/> {details}
       </div>
     </div>)
