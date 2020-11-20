@@ -2,6 +2,8 @@ import React, {Component} from 'react';
 import logo from './logo.svg';
 import './App.css';
 import Game from './Game'
+import Table from 'react-bootstrap/Table';
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 import CanvasJSReact from './assets/canvasjs.react';
 //var CanvasJSReact = require('./canvasjs.react');
@@ -137,23 +139,47 @@ class App extends Component {
 
       } else {
 
-        const options = {
-          title: {
-            text: "Theraputic Areas"
-          },
-          data: [
+        //diplay chart here
+        // const options = {
+        //   title: {
+        //     text: "Theraputic Areas"
+        //   },
+        //   data: [
+        //     {
+        //       type: "column",
+        //       dataPoints: this.state.selected_data.chart
+        //     }
+        //   ]
+        // }
+        //
+        // console.log(options.data.dataPoints)
+        //
+        // details = (<div style={{
+        //     width: "50%"
+        //   }}><CanvasJSChart options={options}/></div>)
+
+        details = (<Table striped="striped" bordered="bordered" hover="hover">
+          <thead>
+            <tr>
+              <th>Drug Name</th>
+              <th>Indication</th>
+              <th>Current Phase</th>
+              <th>Last Update</th>
+            </tr>
+          </thead>
+          <tbody>
             {
-              type: "column",
-              dataPoints: this.state.selected_data
+              this.state.selected_data.pipeline.map(item => (<tr>
+                <td>{item['_id']['DrugName']}</td>
+                <td>{item['_id']['Indication']}</td>
+
+                <td>{item['lastPhase']}</td>
+                <td>{item['lastUpdate'].substring(4, 6) + '-' + item['lastUpdate'].substring(6, 8) + '-' + item['lastUpdate'].substring(0, 4)}</td>
+              </tr>))
             }
-          ]
-        }
+          </tbody>
+        </Table>)
 
-        console.log(options.data.dataPoints)
-
-        details = (<div style={{
-            width: "50%"
-          }}><CanvasJSChart options={options}/></div>)
       }
     } else {
       details = (<div>does not have details</div >)
