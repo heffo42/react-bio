@@ -10,8 +10,13 @@ import "firebase/auth"
     appId: "1:846728521230:web:dea43c27d13743a1f7be5f",
     measurementId: "G-BXNE3JF0TM"
   };
-  // Initialize Firebase
+
+// Initialize Firebase
 const app = firebase.initializeApp(firebaseConfig);
+
+
+
+
 
 export const auth = app.auth()
 export default app

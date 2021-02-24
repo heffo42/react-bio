@@ -1,4 +1,4 @@
-import React, {Component} from 'react';
+import React, {Component, useState, useContext, useEffect} from 'react';
 import Table from 'react-bootstrap/Table';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Signup from "./Signup"
@@ -11,7 +11,7 @@ import PrivateRoute from "./PrivateRoute"
 import ForgotPassword from "./ForgotPassword"
 import UpdateProfile from "./UpdateProfile"
 import SearchItem from "./SearchItem"
-
+import { useAuth } from "../contexts/AuthContext"
 
 import CanvasJSReact from '../assets/canvasjs.react';
 //var CanvasJSReact = require('./canvasjs.react');
@@ -21,39 +21,32 @@ var CanvasJSChart = CanvasJSReact.CanvasJSChart;
 //const base_url = 'http://157.230.216.187:5000/'
 const base_url = 'http://localhost:5000/'
 
-class Search extends Component {
 
-    constructor(props) {
-      super(props);
-      this.state = {
-        list: [
-        ],
-        selected_data: null,
-        selectedOption: 'drug',
-        activeCompanyData: null
-      }
+function Search() {
+    
+
+    const [list, set_list] = useState([])
+    const [selected_data, set_selected_data] = useState(null)
+    const [selectedOption, set_selectedOption] = useState('drug')
+    const [activeCompanyData, set_activeCompanyData] = useState(null)
+    const [isLoaded, set_isLoaded] = useState(false)
+    const {currentUser, setCurrentUser} = useAuth()
+
+
   
-      this.addItem = this.addItem.bind(this)
-      this.expandDetails = this.expandDetails.bind(this)
-      // this.handleChange = this.handleChange.bind(this)
-  
-      this.onChangeValue = this.onChangeValue.bind(this)
-  
-    }
-  
-    expandDetails(e) {
+    function expandDetails(e) {
       e.preventDefault()
   
       console.log('expandDetails was clicked')
       console.log(e.target.id)
   
-      if (this.state.selectedOption == 'drug') {
+      if (selectedOption == 'drug') {
         const url = `${base_url}/details?drug_name=${encodeURIComponent(e.target.id)}`
         //const url = '${base_url}/pipeline'
         fetch(url).then(res => res.json()).then((result) => {
           console.log(result)
-  
-          this.setState({selected_data: result})
+        
+          set_selected_data(result)
         })
       } else {
   
@@ -62,25 +55,25 @@ class Search extends Component {
   
         fetch(url).then(res => res.json()).then((result) => {
           console.log(result)
-          this.setState({selected_data: result})
-          console.log(this.state.selected_data)
+          set_selected_data(result)
+          console.log(selected_data)
         })
   
       }
   
     }
   
-    addItem(e) {
+    function addItem(e) {
       e.preventDefault()
   
-      let list = this.state.list
+      let list = list
       const newItem = document.getElementById('addInput')
       const form = document.getElementById("addItemForm")
   
       if (newItem.value != "") {
         list.push(newItem.value)
   
-        this.setState({list: list})
+        set_list(list)
   
         newItem.classList.remove('is-danger')
         form.reset()
@@ -93,117 +86,42 @@ class Search extends Component {
   
     }
   
-    handleChange(e) {
+    function handleChange(e) {
   
       let a;
-      if (this.state.selectedOption == 'drug') {
+      if (selectedOption == 'drug') {
         a = `${base_url}drug?search=${encodeURIComponent(e.target.value)}`
         //a = `${base_url}pipeline`
       } else {
         a = `${base_url}company?search=${encodeURIComponent(e.target.value)}`
   
       }
+
   
       console.log(a)
+      console.log(currentUser)
+      //console.log(currentUser)
       fetch(a, {
         method: 'GET',
       }).then(res => res.json()).then((result) => {
         console.log(result)
-        this.setState({list: result})
+        set_list(result)
       }, (error) => {
         console.log('error')
-        this.setState({isLoaded: true, error});
+        set_isLoaded(true)
       })
   
     }
   
-    onChangeValue(event) {
+    function onChangeValue(event) {
       console.log(event.target.value)
-      this.setState({selectedOption: event.target.value})
+      set_selectedOption(event.target.value)
     }
-  
-    render() {
-  
-      const hasDetails = this.state.selected_data != null
-  
-      let details;
-      if (hasDetails) {
-  
-        if (this.state.selectedOption == 'drug') {
-  
-          details = (<Table striped="striped" bordered="bordered" hover="hover">
-          <thead>
-            <tr>
-              <th>NCT ID</th>
-              <th>Title</th>
-              <th>Interventions</th>
-              <th>Current Phase</th>
-              <th>Last Update</th>
-            </tr>
-          </thead>
-          <tbody>
-            {
-              this.state.selected_data.map(item => (<tr>
-                <td>{item[0]}</td>
-                <td>{item[2]}</td>
-                <td>{item[4]}</td>
-                <td>{item[3]}</td>
-                <td>{item[5]}</td>
-              </tr>))
-            }
-          </tbody>
-        </Table>)
-  
-        } else {
-  
-          //diplay chart here
-          // const options = {
-          //   title: {
-          //     text: "Theraputic Areas"
-          //   },
-          //   data: [
-          //     {
-          //       type: "column",
-          //       dataPoints: this.state.selected_data.chart
-          //     }
-          //   ]
-          // }
-          //
-          // console.log(options.data.dataPoints)
-          //
-          // details = (<div style={{
-          //     width: "50%"
-          //   }}><CanvasJSChart options={options}/></div>)
-  
-          details = (<Table striped="striped" bordered="bordered" hover="hover">
-            <thead>
-              <tr>
-                <th>NCT ID</th>
-                <th>Title</th>
-                <th>Interventions</th>
-                <th>Current Phase</th>
-                <th>Last Update</th>
-              </tr>
-            </thead>
-            <tbody>
-              {
-                this.state.selected_data.map(item => (<tr>
-                  <td>{item[0]}</td>
-                  <td>{item[2]}</td>
-                  <td>{item[4]}</td>
-                  <td>{item[3]}</td>
-                  <td>{item[5]}</td>
-                </tr>))
-              }
-            </tbody>
-          </Table>)
-  
-        }
-      } else {
-        details = (<div>does not have details</div >)
-      }
-  
-      return (<div className="content">
+
+    
+    return (
+    
+      <div className="content">
   
         <div className="container">
   
@@ -213,11 +131,11 @@ class Search extends Component {
               <form className="form" id="addItemForm">
                 <input style={{
                     width: "100%"
-                  }} type="text" className="input" id="addInput" onChange={this.handleChange.bind(this)} placeholder={`Search for a ${this.state.selectedOption}`}/>
+                  }} type="text" className="input" id="addInput" onChange={handleChange} placeholder={`Search for a ${selectedOption}`}/>
               </form>
             </div>
   
-            <div className="flex-child" onChange={this.onChangeValue}>
+            <div className="flex-child" onChange={onChangeValue}>
               <input type="radio" value="drug" name="search_type" defaultChecked="true"/>
               Drug
               <input type="radio" value="company" name="search_type"/>
@@ -228,14 +146,39 @@ class Search extends Component {
   
           <div className="searchItems">
             <ul>
-              {this.state.list.map(item => (<SearchItem itemName={item} key={item} onClick={this.expandDetails}/>))}
+              {list.map(item => (<SearchItem itemName={item} key={item} onClick={expandDetails}/>))}
             </ul>
           </div>
   
-          <hr/> {details}
+          <hr/> {<Table striped="striped" bordered="bordered" hover="hover">
+          <thead>
+            <tr>
+              <th>NCT ID</th>
+              <th>Title</th>
+              <th>Interventions</th>
+              <th>Current Phase</th>
+              <th>Last Update</th>
+            </tr>
+          </thead>
+          {selected_data != null &&
+          <tbody>
+            {
+              selected_data.map(item => (<tr>
+                <td>{item[0]}</td>
+                <td>{item[2]}</td>
+                <td>{item[4]}</td>
+                <td>{item[3]}</td>
+                <td>{item[5]}</td>
+              </tr>))
+            }
+          </tbody>}
+        </Table>}
         </div>
-      </div>)
-    }
-  }
+      </div>
+    );
+}
+    
+    
+
   
-  export default Search
+  export default Search;
