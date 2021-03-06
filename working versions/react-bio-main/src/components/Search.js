@@ -12,6 +12,7 @@ import ForgotPassword from "./ForgotPassword"
 import UpdateProfile from "./UpdateProfile"
 import SearchItem from "./SearchItem"
 import { useAuth } from "../contexts/AuthContext"
+import { auth, analytics } from "../firebase"
 
 import CanvasJSReact from '../assets/canvasjs.react';
 //var CanvasJSReact = require('./canvasjs.react');
@@ -36,9 +37,10 @@ function Search() {
   
     function expandDetails(e) {
       e.preventDefault()
-  
       console.log('expandDetails was clicked')
       console.log(e.target.id)
+
+      analytics.logEvent('expand_details')
   
       if (selectedOption == 'drug') {
         const url = `${base_url}/details?drug_name=${encodeURIComponent(e.target.id)}`
@@ -99,7 +101,7 @@ function Search() {
 
   
       console.log(a)
-      console.log(currentUser)
+      //console.log(currentUser.email)
       //console.log(currentUser)
       fetch(a, {
         method: 'GET',
@@ -117,6 +119,7 @@ function Search() {
       console.log(event.target.value)
       set_selectedOption(event.target.value)
     }
+
 
     
     return (
@@ -178,7 +181,5 @@ function Search() {
     );
 }
     
-    
-
   
-  export default Search;
+export default Search;
